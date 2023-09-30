@@ -1,0 +1,11 @@
+title: Next Hat
+subtitle: Nanocl Repository
+description: |
+  Designed to serve a diverse range of production ready services.
+host: http://0.0.0.0:8080
+path: ./config
+directory: ./root
+icons:
+  png: /static/icons/image.png
+  deb: /static/icons/deb.png
+  yml: /static/icons/package.png
