@@ -10,4 +10,4 @@
 
 </div>
 
-Officially maintened production ready services
+Officially maintained production ready services

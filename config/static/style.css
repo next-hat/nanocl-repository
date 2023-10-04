@@ -4,7 +4,7 @@ html {
   font-weight: 300;
   line-height: 1.5rem;
   box-sizing: border-box;
-  background-color: black;
+  background-color: white;
 }
 
 * {
@@ -22,7 +22,8 @@ header#header {
   display: flex;
   flex: 1;
   flex-direction: row;
-  background-color: #1B1B1D;
+  background-color: white;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
   height: 62px;
   flex-shrink: 0;
   position: relative;
@@ -41,7 +42,7 @@ div.header {
 }
 
 div.banner > a > b {
-  color: white;
+  color: black;
   margin-left: 10px;
   font-weight: bold;
 }
@@ -70,7 +71,7 @@ h1 {
   max-width: 40em;
   font-style: normal;
   font-weight: 100;
-  color: white;
+  color: black;
   font-weight: bold;
   margin-top: 0;
   font-size: 2.91029rem;
@@ -80,7 +81,7 @@ h1 {
 }
 
 p {
-  color: white;
+  color: black;
   max-width: 40em;
   font-weight: 400;
   line-height: 1.5rem;
@@ -129,15 +130,20 @@ div.row {
   padding: 1.5rem;
 }
 
+div.row {
+  color: orange;
+}
+
 div.row.no-padding {
   padding-top: 0;
   padding-bottom: 0;
 }
 
 section.file-table {
-  background-color: #1B1B1D;
+  background-color: white;
+  box-shadow: 0 3px 6px rgb(11 33 74/9%),0 -2px 2px rgb(11 33 74/3%);
   height: 100%;
-  border-radius: 0.125rem;
+  border-radius: 4px;
   color: #111;
   display: flex;
   flex: 1;
@@ -160,10 +166,15 @@ section.file-table {
   align-items: center;
   justify-content: center;
   justify-content: space-between;
+  border-bottom: 1px solid rgb(11 33 74/3%);
+}
+
+.file-table-row:last-child {
+  border-bottom: none;
 }
 
 .file-table-row-hover:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgb(11 33 74/3%);
 }
 
 .file-table-title {
