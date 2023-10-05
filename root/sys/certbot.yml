@@ -50,5 +50,4 @@ Cargoes:
               Certificate: "$FULL_CHAIN"
               CertificateKey: "$PRIV_KEY"
       EOF
-      cat /tmp/secret.yaml
       nanocl state apply -ys /tmp/secret.yaml
