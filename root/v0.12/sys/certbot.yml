@@ -1,9 +1,8 @@
 ##
 # Run certbot to generate a certificate for a domain.
-# nanocl state apply -s nhnr.io/sys/certbot.yml
+# nanocl state apply -s nhnr.io/v0.12/sys/certbot.yml
 ##
-Kind: Cargo
-ApiVersion: v0.10
+ApiVersion: v0.12
 
 Args:
 - Name: email
@@ -11,12 +10,11 @@ Args:
 - Name: domain
   Kind: String
 
-Namespace: system
-
-Cargoes:
-- Name: certbot-gen
-  Container:
-    Image: ubuntu:latest
+Jobs:
+- Name: certbot-gen-${{ Args.domain }}
+  Ttl: 4
+  Containers:
+  - Image: ubuntu:latest
     HostConfig:
       AutoRemove: true
       PidMode: container:nproxy.system.c

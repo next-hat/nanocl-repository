@@ -2,8 +2,7 @@
 # VPN server IPsec/L2TP with PSK and XAuth
 # nanocl state apply -s nhnr.io/sys/vpn.yml
 ##
-Kind: Deployment
-ApiVersion: v0.10
+ApiVersion: v0.12
 
 Args:
 - Name: namespace
