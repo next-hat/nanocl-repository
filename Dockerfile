@@ -1,4 +1,4 @@
-FROM ghcr.io/nxthat/nhsf:0.1.2-nightly
+FROM ghcr.io/next-hat/nhsf:0.1.2-nightly
 
 COPY ./root /opt/nhsf/root
 COPY ./config /opt/nhsf/config
