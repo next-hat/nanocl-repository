@@ -1,0 +1,4 @@
+ApiVersion: v0.13
+Namespace: "toto"
+Cargoes:
+#{% render "./include_example.partial.yml", name:"include-test" %}
