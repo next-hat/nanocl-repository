@@ -1,4 +1,6 @@
 ApiVersion: v0.13
 Namespace: "toto"
 Cargoes:
-#{% render "./include_example.partial.yml", name:"include-test" %}
+#{% render "./include_example.partial.yml", name:"include-test-url-relative" %}
+#{% render "/v0.14/tests/include_example.partial.yml", name:"include-test-url-absolute" %}
+#{% render "https://nhnr.io/v0.14/tests/include_example.yml", name:"include-without-root" %}
