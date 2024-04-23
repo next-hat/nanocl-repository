@@ -1,6 +1,12 @@
 ApiVersion: v0.13
 Namespace: "toto"
 Cargoes:
-#{% render "./include_example.partial.yml", name:"include-test-url-relative" %}
-#{% render "/v0.14/tests/include_example.partial.yml", name:"include-test-url-absolute" %}
-#{% render "https://nhnr.io/v0.14/tests/include_example.yml", name:"include-without-root" %}
+# {% assign filename = "include_example.partial.yml" %}
+# {% assign absolute = "/v0.14/tests/" | append: filename %}
+# {% assign relative = "./" | append: filename %}
+# {% assign url = "https://nhnr.io/v0.14/tests/" | append: filename %}
+
+Cargoes:
+#{% render relative, name:"include-test-file-absolute" %}
+#{% render absolute, name:"include-test-file-relative" %}
+#{% render url, name:"include-test-file-url" %}
