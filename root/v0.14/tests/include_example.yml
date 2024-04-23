@@ -1,6 +1,5 @@
 ApiVersion: v0.13
 Namespace: "toto"
-Cargoes:
 # {% assign filename = "include_example.partial.yml" %}
 # {% assign absolute = "/v0.14/tests/" | append: filename %}
 # {% assign relative = "./" | append: filename %}
