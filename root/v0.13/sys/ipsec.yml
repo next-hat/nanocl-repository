@@ -1,6 +1,6 @@
 ##
 # VPN server IPsec/L2TP with PSK and XAuth
-# nanocl state apply -s nhnr.io/sys/vpn.yml
+# nanocl state apply -s https://nhnr.io/v0.13/sys/ipsec.yml
 ##
 ApiVersion: v0.13
 
