@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 WORKDIR /tmp
 
@@ -8,8 +8,8 @@ RUN apt-get update -yqq && \
     inotify-tools \
     && apt-get clean
 
-RUN wget https://github.com/nxthat/nanocl/releases/download/nanocl-0.13.0-nightly/nanocl_0.13.0_amd64.deb && \
-  dpkg -i nanocl_0.13.0_amd64.deb
+RUN wget https://github.com/nxthat/nanocl/releases/download/nanocl-0.14.0-nightly/nanocl_0.14.0_amd64.deb && \
+  dpkg -i nanocl_0.14.0_amd64.deb
 
 WORKDIR /root
 
