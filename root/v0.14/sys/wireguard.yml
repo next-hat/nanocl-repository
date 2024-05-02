@@ -1,9 +1,9 @@
 ##
 # A wireguard server with optional a web interface
 # Easy to use
-# nanocl state apply -f https://nhnr.io/v0.13/sys/wireguard.yml
+# nanocl state apply -f https://nhnr.io/v0.14/sys/wireguard.yml
 ## 
-ApiVersion: v0.13
+ApiVersion: v0.14
 
 Args:
   - Name: puid
@@ -33,7 +33,7 @@ Namespace: ${{ Args.namespace }}
 # https://docs.next-hat.com/references/nanocl/objects/resource
 Resources:
 - Name: dns-wggui
-  Kind: ncdns.io/rule/v0.5
+  Kind: ncdns.io/rule
   Data:
     Network: ${{ Args.namespace }}.nsp
     Entries:
@@ -52,6 +52,7 @@ Resources:
           Key: wggui.${{ Args.namespace }}.c
           Port: 5000
 # {% endif %}
+
 # See all options:
 # https://docs.next-hat.com/references/nanocl/cargo
 Cargoes:
@@ -80,6 +81,7 @@ Cargoes:
           -  ${{ Args.configPath }}/config:/config
         Sysctls:
           net.ipv4.ip_forward: "1"
+
 # {% if Args.gui %}
   - Name: wggui
     Container:
