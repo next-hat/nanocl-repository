@@ -13,7 +13,7 @@ Cargoes:
 # https://docs.next-hat.com/references/nanocl/resource
 Resources:
 - Name: deploy-example.com
-  Kind: ncproxy.io/rule/v0.10
+  Kind: ncproxy.io/rule/v0.11
   Data:
     Rules:
     - Domain: deploy-example.com
