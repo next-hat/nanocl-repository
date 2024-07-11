@@ -1,0 +1,53 @@
+##
+# Run certbot to generate a certificate for a domain.
+##
+ApiVersion: v0.15
+
+Args:
+- Name: email
+  Kind: String
+- Name: domain
+  Kind: String
+- Name: test
+  Kind: Boolean
+
+Jobs:
+- Name: certbot-gen-${{ Args.domain }}
+  Ttl: 5
+  Containers:
+  - Image: ubuntu:latest
+    Tty: false
+    HostConfig:
+      NetworkMode: host
+      PidMode: container:nproxy.system.c
+      VolumesFrom:
+      - nproxy.system.c
+    Cmd:
+    - /bin/sh
+    - -c
+    - |
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update -yqq
+      apt-get install --force-yes -yqq wget certbot python3-certbot-nginx nginx-extras
+      wget https://github.com/nxthat/nanocl/releases/download/nanocl-0.15.0-nightly/nanocl_0.15.0_amd64.deb
+      dpkg -i nanocl_0.15.0_amd64.deb
+      certbot --nginx -n \
+        --agree-tos \
+        --email ${{ Args.email }} \
+        --force-renewal \
+        -d ${{ Args.domain }} \
+        {% if Args.test %}--test-cert {% endif %} \
+        --nginx-server-root /var/lib/nanocl/proxy
+      FULL_CHAIN=`cat /etc/letsencrypt/live/${{ Args.domain }}/fullchain.pem | awk 1 ORS='\\\n'`
+      PRIV_KEY=`cat /etc/letsencrypt/live/${{ Args.domain }}/privkey.pem | awk 1 ORS='\\\n'`
+      cat <<EOF > /tmp/secret.yaml
+        ApiVersion: v0.15
+        Secrets:
+        - Name: cert.{% if Args.test %}test.{% endif %}${{ Args.domain }}
+          Kind: nanocl.io/tls
+          Data:
+            Certificate: "$FULL_CHAIN"
+            CertificateKey: "$PRIV_KEY"
+      EOF
+      cat /tmp/secret.yaml
+      nanocl state apply -ys /tmp/secret.yaml
