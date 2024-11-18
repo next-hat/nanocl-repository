@@ -32,20 +32,20 @@ Namespace: ${{ Args.namespace }}
 ## See all options:
 # https://docs.next-hat.com/references/nanocl/objects/resource
 Resources:
-- Name: dns-wggui
+- Name: dns.wggui
   Kind: ncdns.io/rule
   Data:
-    Network: ${{ Args.namespace }}.nsp
+    Network: Internal
     Entries:
     - Name: wggui.internal
-      IpAddress: ${{ Args.namespace }}.nsp
+      IpAddress: Internal
 
 - Name: wireguard.internal
   Kind: ncproxy.io/rule
   Data:
     Rules:
     - Domain: wireguard.internal
-      Network: ${{ Args.namespace }}.nsp
+      Network: Internal
       Locations:
       - Path: /
         Target:
@@ -75,7 +75,7 @@ Cargoes:
       CapAdd:
       - NET_ADMIN
       Dns:
-      - ${{ Namespaces[ Args.namespace ].Gateway }}
+      - $$INTERNAL_GATEWAY
       - ${{ Args.dns }}
       Binds:
       -  ${{ Args.configPath }}/config:/config
