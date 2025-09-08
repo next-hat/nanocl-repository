@@ -1,0 +1,107 @@
+##
+# A wireguard server with optional a web interface
+# Easy to use
+# nanocl state apply -f https://nhnr.io/v0.16/sys/wireguard.yml
+##
+ApiVersion: v0.16
+
+Args:
+- Name: puid
+  Kind: String
+  Default: 1000
+- Name: pgid
+  Kind: String
+  Default: 1000
+- Name: namespace
+  Kind: String
+  Default: wireguard
+- Name: peers
+  Kind: String
+- Name: dns
+  Kind: String
+  Default: "1.1.1.1"
+- Name: configPath
+  Kind: String
+  Default: /opt/wireguard
+- Name: gui
+  Kind: Boolean
+- Name: network
+  Kind: String
+  Default: Internal
+
+Namespace: ${{ Args.namespace }}
+
+# {% if Args.gui %}
+Resources:
+- Name: dns.wggui
+  Kind: ncdns.io/rule
+  Data:
+    Network: Internal
+    Entries:
+    - Name: wireguard.internal
+      IpAddress: Internal
+
+- Name: wireguard.internal
+  Kind: ncproxy.io/rule
+  Data:
+    Rules:
+    - Domain: wireguard.internal
+      Network: ${{ Args.network }}
+      Locations:
+      - Path: /
+        Target:
+          Key: wggui.${{ Args.namespace }}.c
+          Port: 5000
+# {% endif %}
+
+Cargoes:
+# {% if Args.gui %}
+- Name: wggui
+  Container:
+    Image: ngoduykhanh/wireguard-ui:latest
+    HostConfig:
+      PortBindings:
+        51820/udp:
+        - HostPort: "51820"
+      CapAdd:
+      - NET_ADMIN
+      Dns:
+      - $$INTERNAL_GATEWAY
+      - ${{ Args.dns }}
+      Binds:
+      - ${{ Args.configPath }}/config/wg_confs:/etc/wireguard
+      - ${{ Args.configPath }}/db:/app/db
+      Sysctls:
+        net.ipv4.ip_forward: "1"
+    Env:
+    - WGUI_ENDPOINT_ADDRESS=${NANOCL_NODE_ADDR}
+    - WGUI_DNS=$$INTERNAL_GATEWAY
+    - WGUI_MANAGE_START=true
+    - WGUI_MANAGE_RESTART=true
+# {% else %}
+- Name: wgsrv
+  Container:
+    Image: lscr.io/linuxserver/wireguard:latest
+    Cmd:
+    - -c
+    - SERVERURL=$NANOCL_NODE_ADDR sh /init
+    Env:
+    - PUID=${{ Args.puid }}
+    - PGID=${{ Args.pgid }}
+    - TZ=Europe/Paris
+    - PEERS=${{ Args.peers }}
+    - PERSISTENTKEEPALIVE_PEERS=all
+    HostConfig:
+      PortBindings:
+        51820/udp:
+        - HostPort: "51820"
+      CapAdd:
+      - NET_ADMIN
+      Dns:
+      - $$INTERNAL_GATEWAY
+      - ${{ Args.dns }}
+      Binds:
+      -  ${{ Args.configPath }}/config:/config
+      Sysctls:
+        net.ipv4.ip_forward: "1"
+# {% endif %}
