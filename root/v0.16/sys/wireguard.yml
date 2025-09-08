@@ -32,7 +32,7 @@ Cargoes:
     # Set this to your desired users, they will be created automatically
     # When the container start
     # You can add multiple users separated by comma
-    - PEERS=${{ Env.WG_USERS }}
+    - PEERS=${{ Envs.WG_USERS }}
     - PERSISTENTKEEPALIVE_PEERS=all
     HostConfig:
       PortBindings:
