@@ -7,7 +7,7 @@ import rehypeRaw from "rehype-raw";
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import {statefileToMarkdown} from "../../../lib/statefileToMarkdown";
-import type { Metadata, ResolvingMetadata } from 'next'
+import type { Metadata } from 'next'
 
 type PageProps = {
   params: Promise<{ version: string, statefile: string }>
@@ -64,6 +64,7 @@ export default async function StatefilePage({ params, searchParams }: PageProps)
                   customStyle={{
                     overflowX: "auto",
                     maxWidth: "86vw",
+                    width: "100%",
                     display: "inline-block",
                     margin: 0,
                   }}

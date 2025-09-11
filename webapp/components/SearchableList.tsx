@@ -57,7 +57,7 @@ export default function SearchableList({ items, version, placeholder = "Search b
             <Link
               href={`/${version}/${s.slug}`}
               aria-label={`View manual for ${s.name}`}
-              className="mt-2 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
+              className="text-center justify-center mt-2 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
             >
               <FiEye aria-hidden />
               View manual
