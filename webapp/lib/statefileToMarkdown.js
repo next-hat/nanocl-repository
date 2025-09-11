@@ -23,7 +23,7 @@ function statefileToMarkdown(statefile, source = "statefile.yaml") {
   if (metadata.Tags && metadata.Tags.length > 0) {
     markdown += `## Tags\n${metadata.Tags.join(", ")}\n\n`;
   }
-  markdown += `## Synopsis\nnanocl state apply -s ${source} -- [--help] **ARGUMENTS**\nnanocl state rm -s ${source} -- [--help] **ARGUMENTS**\n\n`;
+  markdown += `## Synopsis\nnanocl state apply -s ${source} -- [--help] **ARGUMENTS**\n\nnanocl state rm -s ${source} -- [--help] **ARGUMENTS**\n\n`;
   if (metadata.LongAbout) {
     markdown += `## Description\n${metadata.LongAbout}\n`;
   } else if (metadata.About) {
