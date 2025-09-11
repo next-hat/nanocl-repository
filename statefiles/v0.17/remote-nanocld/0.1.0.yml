@@ -1,0 +1,91 @@
+ApiVersion: v0.16
+
+Metadata:
+  Name: Remote Nanocld
+  Tags:
+  - job
+  - security
+  - access
+  About: Enable remote access to the Nanocl daemon.
+  LongAbout: |
+    This job enables remote access to the Nanocl daemon by generating TLS certificates and creating a proxy rule.
+    It generates a self-signed CA and server certificate, which are used to secure the connection to the Nanocl daemon.
+    The client certificate is also generated and can be used to authenticate clients connecting to the daemon.
+    The generated certificates are stored as secrets in Nanocl for easy integration with other services.
+
+    You can display the client certificate using the command:
+    ```bash
+    nanocl secret inspect cert.client.nanocl.io
+    ```
+
+Args:
+- Name: port
+  Kind: Number
+  Default: 9943
+  Description: Port to expose the nanocld API on.
+
+Jobs:
+- Name: enable-remote-nanocld
+  Ttl: 5
+  Containers:
+  - Image: ubuntu:latest
+    Entrypoint:
+    - /bin/sh
+    HostConfig:
+      Binds:
+      - /run/nanocl/nanocl.sock:/run/nanocl/nanocl.sock
+    Cmd:
+    - -c
+    - |
+      apt-get update -y
+      apt-get install -y openssl wget
+      openssl req -x509 -newkey rsa:4096 -keyout ca.key -out ca.crt -days 365 -nodes -subj "/CN=NanoclCA"
+      openssl req -newkey rsa:4096 -keyout server.key -out server.csr -nodes -subj "/CN=*"
+      openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca.key -CAcreateserial -days 365
+      openssl req -newkey rsa:4096 -keyout client.key -out client.csr -nodes -subj "/CN=NanoclClient"
+      openssl x509 -req -in client.csr -out client.crt -CA ca.crt -CAkey ca.key -CAcreateserial -days 365
+      wget https://github.com/next-hat/nanocl/releases/download/nanocl-0.16.0-nightly/nanocl_0.16.0_amd64.deb
+      dpkg -i nanocl_0.16.0_amd64.deb
+      CERT=`cat server.crt | awk 1 ORS='\\\n'`
+      CERT_KEY=`cat server.key | awk 1 ORS='\\\n'`
+      CERT_CLIENT=`cat ca.crt | awk 1 ORS='\\\n'`
+      cat <<EOF > /tmp/secret.yaml
+        ApiVersion: v0.16
+        Secrets:
+        - Name: cert.daemon.nanocl.io
+          Kind: nanocl.io/tls
+          Data:
+            Certificate: "$CERT"
+            CertificateKey: "$CERT_KEY"
+            CertificateClient: "$CERT_CLIENT"
+            VerifyClient: true
+      EOF
+      cat /tmp/secret.yaml
+      nanocl state apply -ys /tmp/secret.yaml
+      CERT=`cat client.crt | awk 1 ORS='\\\n'`
+      CERT_KEY=`cat client.key | awk 1 ORS='\\\n'`
+      cat <<EOF > tmp/secret.yaml
+        ApiVersion: v0.16
+        Secrets:
+        - Name: cert.client.nanocl.io
+          Kind: nanocl.io/tls
+          Metadata:
+            nanocl.io/secret-type: client
+          Data:
+            Certificate: "$CERT"
+            CertificateKey: "$CERT_KEY"
+      EOF
+      cat /tmp/secret.yaml
+      nanocl state apply -ys /tmp/secret.yaml
+
+Resources:
+- Name: tcp.${{ Args.port }}.daemon.nanocl.io
+  Kind: ncproxy.io/rule
+  Data:
+    Rules:
+    - Protocol: Tcp
+      Port: ${{ Args.port }}
+      Network: All
+      Ssl: cert.daemon.nanocl.io
+      Target:
+        UnixPath: /run/nanocl/nanocl.sock

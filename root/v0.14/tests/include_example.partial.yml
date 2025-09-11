@@ -1,5 +1,0 @@
-# Include example partial
-
-- Name: "{{ name }}"
-  Container:
-    Image: ghcr.io/next-hat/nanocl-get-started:latest

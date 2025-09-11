@@ -1,0 +1,73 @@
+ApiVersion: v0.17
+
+Metadata:
+  Name: Ipsec
+  Tags:
+  - cargo
+  - vpn
+  - security
+  - networking
+  About: Deploy a IPSEC VPN server using hwdsl2/ipsec-vpn-server image.
+  LongAbout: |
+    This cargo deploys a IPSEC VPN server using the popular hwdsl2/ipsec-vpn-server image.
+    It allows you to easily set up and manage a secure VPN server for your network.
+    You can DNS settings, and other options through arguments.
+    The VPN configuration files are stored on the host for persistence and easy access.
+
+    Use the command `nanocl cargo -n <your namespace> logs ipsec`
+    To see the VPN credentials.
+
+Args:
+- Name: namespace
+  Kind: String
+  Default: ipsec
+  Description: Nanocl namespace where to deploy the cargo.
+- Name: public-ip
+  Kind: String
+  Required: true
+  Description: Public IP address or domain name of the VPN server.
+- Name: dns
+  Kind: String
+  Default: "1.1.1.1"
+  Description: DNS server to use for the VPN clients.
+
+Namespace: ${{ Args.namespace }}
+
+Cargoes:
+- Name: ipsec
+  Container:
+    Image: hwdsl2/ipsec-vpn-server:latest
+    Env:
+    - VPN_PUBLIC_IP=${{ Args.public-ip }}
+    - VPN_DNS_SRV1=$$INTERNAL_GATEWAY
+    - VPN_DNS_SRV2=${{ Args.dns }}
+    - VPN_L2TP_NET=192.168.42.0/16
+    - VPN_L2TP_LOCAL=192.168.42.1
+    - VPN_L2TP_POOL=192.168.42.10-192.168.42.254
+    - VPN_XAUTH_NET=192.168.43.0/16
+    - VPN_XAUTH_POOL=192.168.43.10-192.168.83.254
+    HostConfig:
+      PortBindings:
+        500/udp:
+        - HostPort: "500"
+        4500/udp:
+        - HostPort: "4500"
+      Binds:
+      - /opt/vpn:/etc/ipsec.d
+      - /lib/modules:/lib/modules
+      CapAdd:
+      - NET_ADMIN
+      Devices:
+      - PathOnHost: /dev/ppp
+        PathInContainer: /dev/ppp
+        CgroupPermissions: rwm
+      Sysctls:
+        net.ipv4.ip_forward: "1"
+        net.ipv4.conf.all.accept_redirects: "0"
+        net.ipv4.conf.all.send_redirects: "0"
+        net.ipv4.conf.all.rp_filter: "0"
+        net.ipv4.conf.default.accept_redirects: "0"
+        net.ipv4.conf.default.send_redirects: "0"
+        net.ipv4.conf.default.rp_filter: "0"
+        net.ipv4.conf.eth0.send_redirects: "0"
+        net.ipv4.conf.eth0.rp_filter: "0"

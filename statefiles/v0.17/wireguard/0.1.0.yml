@@ -1,0 +1,71 @@
+ApiVersion: v0.17
+
+Metadata:
+  Name: Wireguard
+  Tags:
+  - cargo
+  - vpn
+  - security
+  - networking
+  About: Deploy a Wireguard VPN server using LinuxServer.io image.
+  LongAbout: |
+    This cargo deploys a Wireguard VPN server using the popular LinuxServer.io Wireguard image.
+    It allows you to easily set up and manage a secure VPN server for your network.
+    You can configure users, DNS settings, and other options through environment variables and arguments.
+    The Wireguard configuration files are stored on the host for persistence and easy access.
+
+    We recommand to create a .env with the WG_USERS variable to avoid exposing it in the cargo file.
+    Example `.env` content:
+    ```
+    WG_USERS=user1,user2,user3
+    ```
+
+Args:
+- Name: namespace
+  Kind: String
+  Default: wireguard
+  Description: Nanocl namespace where to deploy the cargo.
+- Name: puid
+  Kind: String
+  Default: 1000
+  Description: User ID for the Wireguard process inside the container.
+- Name: pgid
+  Kind: String
+  Default: 1000
+  Description: Group ID for the Wireguard process inside the container.
+- Name: dns
+  Kind: String
+  Default: "1.1.1.1"
+  Description: DNS server to use for the VPN clients.
+- Name: config-path
+  Kind: String
+  Default: /opt/containers/wireguard
+  Description: Path on the host where to store the Wireguard configuration files.
+
+Namespace: ${{ Args.namespace }}
+
+Cargoes:
+- Name: wgsrv
+  Container:
+    Image: lscr.io/linuxserver/wireguard:latest
+    Cmd:
+    - -c
+    - SERVERURL=$NANOCL_NODE_ADDR sh /init
+    Env:
+    - PUID=${{ Args.puid }}
+    - PGID=${{ Args.pgid }}
+    - PEERS=${{ Envs.WG_USERS }}
+    - PERSISTENTKEEPALIVE_PEERS=all
+    HostConfig:
+      PortBindings:
+        51820/udp:
+        - HostPort: "51820"
+      CapAdd:
+      - NET_ADMIN
+      Dns:
+      - $$INTERNAL_GATEWAY
+      - ${{ Args.dns }}
+      Binds:
+      -  ${{ Args.config-path }}/config:/config
+      Sysctls:
+        net.ipv4.ip_forward: "1"

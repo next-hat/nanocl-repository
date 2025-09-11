@@ -1,0 +1,66 @@
+ApiVersion: v0.17
+
+Metadata:
+  Name: Certbot
+  Tags:
+  - job
+  - security
+  About: Generate SSL certificates using Certbot.
+  LongAbout: |
+    This job uses Certbot to obtain and renew SSL certificates for a specified domain.
+    It is designed to run each 2 weeks and can be configured to use a test certificate.
+    The generated certificates are stored as secrets in Nanocl for easy integration with other services.
+
+Args:
+- Name: email
+  Kind: String
+  Required: true
+  Description: Email address for Certbot registration and recovery contact.
+- Name: domain
+  Kind: String
+  Required: true
+  Description: Domain name for which to generate the SSL certificate.
+- Name: test
+  Kind: Boolean
+  Description: Use a test certificate from Let's Encrypt.
+
+Jobs:
+- Name: certbot-gen-${{ Args.domain }}
+  Schedule: 0 0 */14 * *
+  Containers:
+  - Image: ubuntu:24.10
+    Tty: false
+    HostConfig:
+      NetworkMode: host
+      PidMode: container:nproxy.system.c
+      VolumesFrom:
+      - nproxy.system.c
+    Cmd:
+    - /bin/sh
+    - -c
+    - |
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update -yqq
+      apt-get install --force-yes -yqq wget certbot python3-certbot-nginx nginx-extras
+      wget https://github.com/nxthat/nanocl/releases/download/nanocl-0.16.0-nightly/nanocl_0.16.0_amd64.deb
+      dpkg -i nanocl_0.16.0_amd64.deb
+      certbot --nginx -n \
+        --agree-tos \
+        --email ${{ Args.email }} \
+        --force-renewal \
+        -d ${{ Args.domain }} \
+        {% if Args.test %}--test-cert {% endif %} \
+        --nginx-server-root /var/lib/nanocl/proxy
+      FULL_CHAIN=`cat /etc/letsencrypt/live/${{ Args.domain }}/fullchain.pem | awk 1 ORS='\\\n'`
+      PRIV_KEY=`cat /etc/letsencrypt/live/${{ Args.domain }}/privkey.pem | awk 1 ORS='\\\n'`
+      cat <<EOF > /tmp/secret.yaml
+        ApiVersion: v0.16
+        Secrets:
+        - Name: cert.{% if Args.test %}test.{% endif %}${{ Args.domain }}
+          Kind: nanocl.io/tls
+          Data:
+            Certificate: "$FULL_CHAIN"
+            CertificateKey: "$PRIV_KEY"
+      EOF
+      cat /tmp/secret.yaml
+      nanocl state apply -ys /tmp/secret.yaml

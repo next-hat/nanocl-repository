@@ -1,0 +1,53 @@
+ApiVersion: v0.17
+
+Metadata:
+  Name: Uptime Kuma
+  Tags:
+  - cargo
+  - monitoring
+  About: Deploy an Uptime Kuma instance with a proxy rule.
+  LongAbout: |
+    Uptime Kuma is a self-hosted monitoring tool that allows you to monitor the uptime of your services.
+    This cargo deploys an Uptime Kuma instance and creates a proxy rule to access it via a specified domain.
+    The instance data is stored on the host for persistence.
+
+Args:
+- Name: name
+  Kind: String
+  Required: true
+  Description: Name of the cargo and the data folder.
+- Name: domain
+  Kind: String
+  Required: true
+  Description: Domain name to access Uptime Kuma.
+- Name: namespace
+  Kind: String
+  Default: global
+  Description: Nanocl namespace where to deploy the cargo.
+- Name: network
+  Kind: String
+  Required: true
+  Description: Nanocl network to use for the proxy rule.
+
+Namespace: ${{ Args.namespace }}
+
+Cargoes:
+- Name: ${{ Args.name }}
+  Container:
+    Image: louislam/uptime-kuma:1
+    HostConfig:
+      Binds:
+      - /opt/containers/${{ Args.name }}:/app/data
+
+Resources:
+- Name: http.${{ Args.domain }}
+  Kind: ncproxy.io/rule
+  Data:
+    Rules:
+    - Domain: ${{ Args.domain }}
+      Network: ${{ Args.network }}
+      Locations:
+      - Path: /
+        Target:
+          Key: uptime-kuma.${{ Args.namespace }}.c
+          Port: 3001
