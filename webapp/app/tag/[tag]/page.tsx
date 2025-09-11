@@ -2,7 +2,12 @@ import { notFound } from "next/navigation";
 
 import SearchableList from "@/components/SearchableList";
 
-export default async function TagPage({ params, searchParams }: { params: { tag: string }, searchParams: any }) {
+type PageProps = {
+  params: Promise<{ tag: string }>
+  searchParams: Promise<{ data: string, version: string }>
+}
+
+export default async function TagPage({ params, searchParams }: PageProps) {
   const { tag } = await params;
   const sParams = await searchParams;
   if (!sParams.data) return notFound();
