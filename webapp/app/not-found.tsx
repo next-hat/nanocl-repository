@@ -24,11 +24,10 @@ export default async function NotFound() {
 						Go to homepage
 					</Link>
 				</div>
-				<p className="mt-10 text-xs text-muted-foreground">
+				{/* <p className="mt-10 text-xs text-muted-foreground">
 					Tip: Press <kbd className="rounded bg-muted px-1">Ctrl</kbd>+<kbd className="rounded bg-muted px-1">K</kbd> to search anywhere.
-				</p>
+				</p> */}
 			</div>
 		</div>
 	);
 }
-

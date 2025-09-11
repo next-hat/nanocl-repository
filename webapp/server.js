@@ -1,5 +1,5 @@
-const express = require("express");
 const next = require("next");
+const express = require("express");
 const path = require("path");
 
 // In-memory registry utilities

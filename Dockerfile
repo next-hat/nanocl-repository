@@ -1,7 +1,19 @@
-FROM ghcr.io/next-hat/nhsf:0.1.2-nightly
+FROM node:22.19.0-alpine3.22
 
-COPY ./root /opt/nhsf/root
-COPY ./config /opt/nhsf/config
-COPY ./conf.yml /opt/nhsf/conf.yml
+WORKDIR /webapp
 
-CMD ["-c", "/opt/nhsf/conf.yml"]
+COPY ./webapp/package*.json /webapp
+
+RUN npm install
+
+ENV NODE_ENV=production
+
+COPY ./webapp /webapp
+
+RUN npm run build
+
+COPY ./statefiles /statefiles
+
+EXPOSE 3000/tcp
+
+CMD ["npm", "start", "/statefiles", "v0.17"]
