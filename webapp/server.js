@@ -47,6 +47,9 @@ app.prepare().then(() => {
     const hooked_version = statefile_version.replace(/\.yaml$/, "").replace(/\.yml$/, "");
     const entry = registry.getStatefileVersion(version, statefile, hooked_version);
     if (isNanoclClient(req)) {
+      if (!entry) {
+        return res.status(404).json({ msg: "Not found" });
+      }
       res.setHeader("Content-Type", "text/yaml; charset=utf-8");
       return res.send(entry.yamlText);
     }
@@ -61,6 +64,9 @@ app.prepare().then(() => {
     const hooked_statefile = statefile.replace(/\.yaml$/, "").replace(/\.yml$/, "");
     const entry = registry.getStatefile(version, hooked_statefile);
     if (isNanoclClient(req)) {
+      if (!entry) {
+        return res.status(404).json({ msg: "Not found" });
+      }
       res.setHeader("Content-Type", "text/yaml; charset=utf-8");
       return res.send(entry.yamlText);
     }
